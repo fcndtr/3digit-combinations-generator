@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
+    <link rel="manifest" href="icon/site.webmanifest">
+    <title>Generador de Combinaciones</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a1a1a;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0066ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0052cc;
+        }
+        .toggle-btn {
+            background-color: #f0f2f5;
+            color: #333;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .toggle-btn:hover {
+            background-color: #e0e2e5;
+        }
+        #error {
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+        .combinations {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+        }
+        .combination {
+            background-color: #f0f2f5;
+            padding: 8px;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .positions {
+            display: none;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .show .positions {
+            display: block;
+        }
+        .mapping {
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .mapping.show {
+            display: flex;
+        }
+        .number-position {
+            background-color: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 4px;
+        }
+        .total {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Combinaciones de 3 Dígitos</h1>
+        <div class="input-group">
+            <input 
+                type="text" 
+                id="numberInput" 
+                placeholder="Ingresá 4 dígitos"
+                maxlength="4"
+                pattern="\d*"
+            >
+            <button onclick="generateCombinations()">Generar</button>
+        </div>
+        <div id="error"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function toggleMapping() {
+            const mapping = document.querySelector('.mapping');
+            const combinations = document.querySelector('.combinations');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            mapping.classList.toggle('show');
+            combinations.classList.toggle('show');
+            toggleBtn.textContent = mapping.classList.contains('show') ? 'Ocultar Posiciones' : 'Mostrar Posiciones';
+        }
+
+        function generateCombinations() {
+            const input = document.getElementById('numberInput').value;
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            
+            errorDiv.textContent = '';
+            resultDiv.innerHTML = '';
+
+            if (!/^\d{4}$/.test(input)) {
+                errorDiv.textContent = 'Por favor, ingresá exactamente 4 dígitos';
+                return;
+            }
+
+            const digits = input.split('');
+            const positions = ['A', 'B', 'C', 'D'];
+            const combinations = [];
+            
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    for (let k = 0; k < 4; k++) {
+                        const combination = digits[i] + digits[j] + digits[k];
+                        const positionCombo = positions[i] + positions[j] + positions[k];
+                        combinations.push({
+                            numbers: combination,
+                            positions: positionCombo
+                        });
+                    }
+                }
+            }
+
+            const mappingHtml = digits
+                .map((digit, index) => `
+                    <div class="number-position">
+                        ${positions[index]}: ${digit}
+                    </div>
+                `).join('');
+
+            resultDiv.innerHTML = `
+                <button class="toggle-btn" onclick="toggleMapping()">Mostrar Posiciones</button>
+                <div class="mapping">
+                    ${mappingHtml}
+                </div>
+                <div class="total">
+                    Total de combinaciones: ${combinations.length}
+                </div>
+                <div class="combinations">
+                    ${combinations.map(combo => `
+                        <div class="combination">
+                            ${combo.numbers}
+                            <div class="positions">${combo.positions}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        document.getElementById('numberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateCombinations();
+            }
+        });
+    </script>
+</body>
+</html>
