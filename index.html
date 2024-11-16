@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,198 +8,202 @@
     <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
     <link rel="manifest" href="icon/site.webmanifest">
-    <title>Generador de Combinaciones</title>
+    <title>Generador de Combinaciones Numéricas</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
             background-color: #f0f2f5;
-        }
-        .container {
-            background-color: white;
+            min-height: 100vh;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1a1a1a;
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .input-group {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .input-group {
             margin-bottom: 20px;
         }
+
         input {
-            flex: 1;
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
             text-align: center;
+            margin-bottom: 10px;
         }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
         button {
-            padding: 10px 20px;
-            background-color: #0066ff;
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 16px;
+            transition: background-color 0.2s;
         }
+
         button:hover {
-            background-color: #0052cc;
+            background-color: #1d4ed8;
         }
-        .toggle-btn {
-            background-color: #f0f2f5;
-            color: #333;
-            width: 100%;
-            margin-bottom: 10px;
+
+        button:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
         }
-        .toggle-btn:hover {
-            background-color: #e0e2e5;
-        }
-        #error {
-            color: #ff4444;
-            margin-bottom: 10px;
-        }
-        .combinations {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            gap: 10px;
-        }
-        .combination {
-            background-color: #f0f2f5;
-            padding: 8px;
+
+        .error {
+            color: #dc2626;
             text-align: center;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .positions {
-            display: none;
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
-        }
-        .show .positions {
-            display: block;
-        }
-        .mapping {
-            display: none;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-        .mapping.show {
-            display: flex;
-        }
-        .number-position {
-            background-color: #e9ecef;
-            padding: 8px 15px;
-            border-radius: 4px;
-        }
-        .total {
-            text-align: center;
-            margin-bottom: 15px;
             font-size: 14px;
-            color: #666;
+            margin-top: 8px;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .results-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .combinations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .combination {
+            background-color: #f3f4f6;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .combination:hover {
+            background-color: #e5e7eb;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Generador de Combinaciones de 3 Dígitos</h1>
+        <h1>Generador de Combinaciones Numéricas</h1>
         <div class="input-group">
             <input 
                 type="text" 
                 id="numberInput" 
-                placeholder="Ingresá 4 dígitos"
+                placeholder="Ingresá 3 o 4 dígitos"
                 maxlength="4"
-                pattern="\d*"
             >
-            <button onclick="generateCombinations()">Generar</button>
+            <div id="error" class="error"></div>
         </div>
-        <div id="error"></div>
-        <div id="result"></div>
+        <button id="generateBtn">Generar Combinaciones</button>
+        <div id="results" class="results" style="display: none;">
+            <div class="results-title">Se encontraron <span id="count">0</span> combinaciones:</div>
+            <div id="combinationsGrid" class="combinations-grid"></div>
+        </div>
     </div>
 
     <script>
-        function toggleMapping() {
-            const mapping = document.querySelector('.mapping');
-            const combinations = document.querySelector('.combinations');
-            const toggleBtn = document.querySelector('.toggle-btn');
-            mapping.classList.toggle('show');
-            combinations.classList.toggle('show');
-            toggleBtn.textContent = mapping.classList.contains('show') ? 'Ocultar Posiciones' : 'Mostrar Posiciones';
-        }
+        const numberInput = document.getElementById('numberInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+        const count = document.getElementById('count');
+        const combinationsGrid = document.getElementById('combinationsGrid');
 
-        function generateCombinations() {
-            const input = document.getElementById('numberInput').value;
-            const errorDiv = document.getElementById('error');
-            const resultDiv = document.getElementById('result');
+        // Only allow numbers in input
+        numberInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+            error.textContent = '';
+        });
+
+        function generateCombinations(digits) {
+            const results = [];
+            const len = digits.length;
             
-            errorDiv.textContent = '';
-            resultDiv.innerHTML = '';
-
-            if (!/^\d{4}$/.test(input)) {
-                errorDiv.textContent = 'Por favor, ingresá exactamente 4 dígitos';
-                return;
-            }
-
-            const digits = input.split('');
-            const positions = ['A', 'B', 'C', 'D'];
-            const combinations = [];
-            
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    for (let k = 0; k < 4; k++) {
-                        const combination = digits[i] + digits[j] + digits[k];
-                        const positionCombo = positions[i] + positions[j] + positions[k];
-                        combinations.push({
-                            numbers: combination,
-                            positions: positionCombo
-                        });
+            for (let i = 0; i < len; i++) {
+                for (let j = 0; j < len; j++) {
+                    for (let k = 0; k < len; k++) {
+                        if (i !== j && j !== k && i !== k) {
+                            results.push(digits[i] + digits[j] + digits[k]);
+                        }
                     }
                 }
             }
-
-            const mappingHtml = digits
-                .map((digit, index) => `
-                    <div class="number-position">
-                        ${positions[index]}: ${digit}
-                    </div>
-                `).join('');
-
-            resultDiv.innerHTML = `
-                <button class="toggle-btn" onclick="toggleMapping()">Mostrar Posiciones</button>
-                <div class="mapping">
-                    ${mappingHtml}
-                </div>
-                <div class="total">
-                    Total de combinaciones: ${combinations.length}
-                </div>
-                <div class="combinations">
-                    ${combinations.map(combo => `
-                        <div class="combination">
-                            ${combo.numbers}
-                            <div class="positions">${combo.positions}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+            
+            return [...new Set(results)].sort((a, b) => a - b);
         }
 
-        document.getElementById('numberInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                generateCombinations();
+        generateBtn.addEventListener('click', () => {
+            const input = numberInput.value;
+            
+            if (!/^\d{3,4}$/.test(input)) {
+                error.textContent = 'Por favor, ingresá 3 o 4 dígitos';
+                results.style.display = 'none';
+                return;
             }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generando...';
+            
+            // Simulate loading for better UX
+            setTimeout(() => {
+                try {
+                    const combinations = generateCombinations(input.split(''));
+                    
+                    // Update results
+                    count.textContent = combinations.length;
+                    combinationsGrid.innerHTML = combinations
+                        .map(combo => `<div class="combination">${combo}</div>`)
+                        .join('');
+                    
+                    results.style.display = 'block';
+                    error.textContent = '';
+                } catch (err) {
+                    error.textContent = 'Algo salió mal. Por favor, intentalo de nuevo.';
+                    results.style.display = 'none';
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Generar Combinaciones';
+                }
+            }, 300);
         });
     </script>
 </body>
