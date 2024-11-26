@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,6 +59,14 @@
         input:focus {
             outline: none;
             border-color: #2563eb;
+        }
+
+        input:focus, button:focus {
+            outline: 2px dashed #2563eb;
+            outline-offset: 2px;
+        }
+        .hidden {
+            display: none !important;
         }
 
         button {
@@ -128,77 +135,93 @@
             <input 
                 type="text" 
                 id="numberInput" 
-                placeholder="Ingresá 3 o 4 dígitos"
+                placeholder="Ingresa 3 o 4 dígitos"
                 maxlength="4"
+                aria-describedby="error"
             >
-            <div id="error" class="error"></div>
+            <div id="error" class="error" aria-live="polite"></div>
         </div>
         <button id="generateBtn">Generar Combinaciones</button>
-        <div id="results" class="results" style="display: none;">
-            <div class="results-title">Se encontraron <span id="count">0</span> combinaciones:</div>
+        <div id="results" class="results hidden">
+            <div class="results-title">
+                Se encontraron <span id="count" aria-live="polite">0</span> combinaciones:
+            </div>
             <div id="combinationsGrid" class="combinations-grid"></div>
         </div>
     </div>
 
     <script>
+        // Elements
         const numberInput = document.getElementById('numberInput');
         const generateBtn = document.getElementById('generateBtn');
         const error = document.getElementById('error');
         const results = document.getElementById('results');
         const count = document.getElementById('count');
         const combinationsGrid = document.getElementById('combinationsGrid');
-
-        // Only allow numbers in input
+    
+        // Validate input and only allow numbers
         numberInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/\D/g, '');
-            error.textContent = '';
+            error.textContent = e.target.value.length < 3 ? 'Debes ingresar al menos 3 dígitos.' : '';
         });
-
-        function generateCombinations(digits) {
-            const results = [];
-            const len = digits.length;
-            
-            for (let i = 0; i < len; i++) {
-                for (let j = 0; j < len; j++) {
-                    for (let k = 0; k < len; k++) {
-                        if (i !== j && j !== k && i !== k) {
-                            results.push(digits[i] + digits[j] + digits[k]);
-                        }
-                    }
-                }
+    
+        // Allow "Enter" key to trigger button click
+        numberInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                generateBtn.click();
             }
-            
-            return [...new Set(results)].sort((a, b) => a - b);
+        });
+    
+        // Generate combinations allowing repeated numbers
+        function generateCombinations(digits, length = 3) {
+            const results = [];
+    
+            const backtrack = (path) => {
+                if (path.length === length) {
+                    results.push(path.join(''));
+                    return;
+                }
+                for (let i = 0; i < digits.length; i++) {
+                    path.push(digits[i]);
+                    backtrack(path);
+                    path.pop();
+                }
+            };
+    
+            backtrack([]);
+            return [...new Set(results)].sort((a, b) => a - b); // Ensure unique and sorted results
         }
-
+    
+        // Handle button click
         generateBtn.addEventListener('click', () => {
             const input = numberInput.value;
-            
+    
+            // Validation
             if (!/^\d{3,4}$/.test(input)) {
-                error.textContent = 'Por favor, ingresá 3 o 4 dígitos';
-                results.style.display = 'none';
+                error.textContent = 'Por favor, ingresa 3 o 4 dígitos válidos.';
+                results.classList.add('hidden');
                 return;
             }
-
+    
+            // Disable button while generating
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generando...';
-            
-            // Simulate loading for better UX
+    
+            // Simulate processing delay
             setTimeout(() => {
                 try {
                     const combinations = generateCombinations(input.split(''));
-                    
-                    // Update results
                     count.textContent = combinations.length;
                     combinationsGrid.innerHTML = combinations
                         .map(combo => `<div class="combination">${combo}</div>`)
                         .join('');
-                    
-                    results.style.display = 'block';
+    
+                    // Show results
+                    results.classList.remove('hidden');
                     error.textContent = '';
                 } catch (err) {
-                    error.textContent = 'Algo salió mal. Por favor, intentalo de nuevo.';
-                    results.style.display = 'none';
+                    error.textContent = 'Algo salió mal. Por favor, inténtalo de nuevo.';
+                    results.classList.add('hidden');
                 } finally {
                     generateBtn.disabled = false;
                     generateBtn.textContent = 'Generar Combinaciones';
@@ -206,5 +229,6 @@
             }, 300);
         });
     </script>
+    
 </body>
 </html>
